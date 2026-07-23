@@ -1,0 +1,19 @@
+/* Reel Spark - Base Styles (Day 3 skeleton) */
+
+body {
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 0 20px;
+  color: #1F3A5F;
+  background-color: #F6F8F7;
+}
+
+h1 {
+  color: #1F3A5F;
+}
+
+p {
+  color: #5A6B72;
+  line-height: 1.5;
+}
