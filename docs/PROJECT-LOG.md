@@ -30,7 +30,25 @@ Status: Full technical blueprint complete and live on GitHub. Zero production co
 
 ## Day 3
 
-Not yet started.
+## Day 3 - Project Setup and Foundation (23 July 2026)
+
+Resolved a scope conflict: the standard Day 3 template assumed a framework, database, and authentication scaffold, which conflicted with the no-backend PRD. Proceeded with an adapted, approved-plan-consistent version instead.
+
+Created a Netlify account and connected it directly to the reel-spark GitHub repository. Established the auto-deploy pipeline: any GitHub commit to main automatically publishes to the live site.
+
+Resolved a stuck browser authorization issue by completing the one-time Netlify-GitHub connection on a laptop, a one-off exception to the phone-only workflow. All file editing continues on GitHub's mobile-friendly editor going forward.
+
+Created three skeleton files directly on GitHub: index.html, style.css, and script.js, all in the repository root.
+
+Confirmed the branching strategy: a single main branch with direct commits, appropriate for a solo, mobile-first project.
+
+Verified the live site at reel-spark.netlify.app successfully shows the Reel Spark heading and tagline. This is the Hello World milestone for this project.
+
+Cleaned up several nested duplicate folders and files created accidentally while using GitHub's mobile editor, resulting in a clean repository structure.
+
+Generated SETUP.md, ENVIRONMENT.md, and DAY3-SUMMARY.md.
+
+Status: Foundation complete. Live deploy pipeline working. Ready to begin Day 4 feature development with no further setup needed.
 
 ## Day 4
 
