@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,9 +8,34 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Reel Spark</h1>
-  <p>Spark your resume and LinkedIn profile.</p>
-  <p><em>App coming soon — Day 4 onward.</em></p>
+  <header class="app-header">
+    <h1>Reel Spark</h1>
+    <p class="tagline">Spark your resume and LinkedIn profile.</p>
+  </header>
+
+  <main class="container">
+    <section class="upload-section">
+      <label for="resumeInput" class="upload-box" id="uploadBox">
+        <span class="upload-icon">📄</span>
+        <span class="upload-text" id="uploadText">Drag &amp; drop your resume, or tap to browse</span>
+        <span class="upload-hint">Accepts .pdf or .docx (max 5MB)</span>
+      </label>
+      <input type="file" id="resumeInput" accept=".pdf,.docx" hidden>
+
+      <p id="uploadError" class="error-message" hidden></p>
+      <p id="uploadSuccess" class="success-message" hidden></p>
+    </section>
+
+    <section class="preview-section" id="previewSection" hidden>
+      <h2>Extracted Resume Text (temporary preview)</h2>
+      <pre id="resumeTextPreview" class="text-preview"></pre>
+    </section>
+  </main>
+
+  <!-- PDF parsing library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- DOCX parsing library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 
   <script src="script.js"></script>
 </body>
