@@ -1,4 +1,4 @@
-/* Reel Spark - Base Styles (Day 3 skeleton) */
+/* Reel Spark - Base Styles + Day 4 Upload Box */
 
 body {
   font-family: Arial, sans-serif;
@@ -9,11 +9,95 @@ body {
   background-color: #F6F8F7;
 }
 
-h1 {
+.app-header h1 {
+  color: #1F3A5F;
+  margin-bottom: 4px;
+}
+
+.tagline {
+  color: #5A6B72;
+  margin-top: 0;
+}
+
+.container {
+  margin-top: 24px;
+}
+
+.upload-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #2E7D6B;
+  border-radius: 10px;
+  padding: 32px 16px;
+  cursor: pointer;
+  background-color: #FFFFFF;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  text-align: center;
+}
+
+.upload-box:hover,
+.upload-box.drag-over {
+  background-color: #EAF1F0;
+  border-color: #1F3A5F;
+}
+
+.upload-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  font-size: 15px;
+  font-weight: bold;
   color: #1F3A5F;
 }
 
-p {
+.upload-hint {
+  font-size: 12px;
   color: #5A6B72;
-  line-height: 1.5;
+  margin-top: 6px;
+}
+
+.error-message {
+  color: #C9622D;
+  background-color: #FBEAE0;
+  border: 1px solid #C9622D;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.success-message {
+  color: #2E7D6B;
+  background-color: #EAF5F1;
+  border: 1px solid #2E7D6B;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.preview-section {
+  margin-top: 24px;
+}
+
+.preview-section h2 {
+  font-size: 16px;
+  color: #1F3A5F;
+}
+
+.text-preview {
+  background-color: #FFFFFF;
+  border: 1px solid #DDE4E3;
+  border-radius: 8px;
+  padding: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 13px;
+  color: #1F3A5F;
 }
