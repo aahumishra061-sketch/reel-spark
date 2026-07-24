@@ -52,7 +52,19 @@ Status: Foundation complete. Live deploy pipeline working. Ready to begin Day 4 
 
 ## Day 4
 
-Not yet started.
+## Day 4 - Core Feature Implementation (24 July 2026)
+
+Built the resume upload feature: drag-and-drop and tap-to-browse upload box, using pdf.js and mammoth.js loaded via CDN for PDF and DOCX text extraction.
+
+Implemented the full parsing logic in script.js: file type detection, size validation, text extraction, and error handling for unsupported file types.
+
+Verified with three real tests: a 4.8MB PDF resume, a DOCX resume with headings, and an invalid image file. All three worked exactly as expected.
+
+Hit an unplanned blocker: Netlify's free plan entered a known operational-credits bug that paused production deploys despite a full credit balance, confirmed as a widely reported issue on Netlify's own support forum that same week. Migrated hosting to GitHub Pages to keep the project moving reliably. New permanent live link: aahumishra061-sketch.github.io/reel-spark/
+
+Updated ENVIRONMENT.md to reflect the hosting migration. Generated DAY4-SUMMARY.md.
+
+Status: Resume upload and parsing fully working and verified on the live site. Ready for Day 5.
 
 ## Day 5
 
