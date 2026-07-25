@@ -1,6 +1,5 @@
-
-// Reel Spark - Day 4 Milestone 2
-// Resume upload + PDF/DOCX parsing
+// Reel Spark - Day 5: Tab switching, validation, simulated analyze flow
+// (Real Claude API integration comes on Day 6 — this uses placeholder data for now)
 
 // Configure pdf.js worker (required for pdf.js to function)
 if (typeof pdfjsLib !== "undefined") {
@@ -8,7 +7,7 @@ if (typeof pdfjsLib !== "undefined") {
     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 }
 
-// In-memory state (per SCHEMA.md resumeState model)
+// In-memory state (per SCHEMA.md)
 let resumeState = {
   fileName: null,
   fileType: null,
@@ -16,40 +15,61 @@ let resumeState = {
   isValid: false,
 };
 
-// Grab elements
+let linkedinState = {
+  headline: "",
+  about: "",
+};
+
+let appState = {
+  currentTab: "score",
+  isLoading: false,
+  hasError: false,
+};
+
+// ---------- Grab elements ----------
 const resumeInput = document.getElementById("resumeInput");
 const uploadBox = document.getElementById("uploadBox");
 const uploadText = document.getElementById("uploadText");
 const uploadError = document.getElementById("uploadError");
 const uploadSuccess = document.getElementById("uploadSuccess");
-const previewSection = document.getElementById("previewSection");
-const resumeTextPreview = document.getElementById("resumeTextPreview");
+
+const headlineInput = document.getElementById("headlineInput");
+const aboutInput = document.getElementById("aboutInput");
+
+const analyzeBtn = document.getElementById("analyzeBtn");
+const validationHint = document.getElementById("validationHint");
+
+const loadingSection = document.getElementById("loadingSection");
+const loadingText = document.getElementById("loadingText");
+const resultsSection = document.getElementById("resultsSection");
+
+const tabButtons = document.querySelectorAll(".tab-button");
+const tabContents = document.querySelectorAll(".tab-content");
+
+const copyButtons = document.querySelectorAll(".copy-button");
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
-// Helper: show error message, hide success
+// ---------- Upload helpers (from Day 4) ----------
 function showError(message) {
   uploadError.textContent = message;
   uploadError.hidden = false;
   uploadSuccess.hidden = true;
-  previewSection.hidden = true;
   resumeState.isValid = false;
+  updateAnalyzeButtonState();
 }
 
-// Helper: show success message, hide error
 function showSuccess(message) {
   uploadSuccess.textContent = message;
   uploadSuccess.hidden = false;
   uploadError.hidden = true;
 }
 
-// Helper: reset messages
 function clearMessages() {
   uploadError.hidden = true;
   uploadSuccess.hidden = true;
 }
 
-// Extract text from a PDF file using pdf.js
 async function extractTextFromPDF(file) {
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -65,14 +85,12 @@ async function extractTextFromPDF(file) {
   return fullText.trim();
 }
 
-// Extract text from a DOCX file using mammoth.js
 async function extractTextFromDOCX(file) {
   const arrayBuffer = await file.arrayBuffer();
   const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
   return result.value.trim();
 }
 
-// Main handler: called whenever a file is selected/dropped
 async function handleFileUpload(file) {
   clearMessages();
 
@@ -80,13 +98,11 @@ async function handleFileUpload(file) {
     return;
   }
 
-  // Validate file size
   if (file.size > MAX_FILE_SIZE_BYTES) {
     showError("That file is too large. Please upload a resume under 5MB.");
     return;
   }
 
-  // Determine file type from extension
   const fileName = file.name.toLowerCase();
   let fileType = null;
 
@@ -118,7 +134,6 @@ async function handleFileUpload(file) {
       return;
     }
 
-    // Save to state
     resumeState = {
       fileName: file.name,
       fileType: fileType,
@@ -128,12 +143,7 @@ async function handleFileUpload(file) {
 
     uploadText.textContent = "Drag & drop your resume, or tap to browse";
     showSuccess(`"${file.name}" uploaded and read successfully.`);
-
-    // Temporary preview (will be replaced by tabs on Day 5)
-    resumeTextPreview.textContent = extractedText;
-    previewSection.hidden = false;
-
-    console.log("Resume parsed successfully:", resumeState.fileName, "-", extractedText.length, "characters");
+    updateAnalyzeButtonState();
   } catch (err) {
     console.error("Error parsing file:", err);
     showError("Something went wrong while reading that file. Please try again or use a different file.");
@@ -141,13 +151,11 @@ async function handleFileUpload(file) {
   }
 }
 
-// Event: file picked via click/tap
 resumeInput.addEventListener("change", (event) => {
   const file = event.target.files[0];
   handleFileUpload(file);
 });
 
-// Events: drag & drop support
 uploadBox.addEventListener("dragover", (event) => {
   event.preventDefault();
   uploadBox.classList.add("drag-over");
@@ -164,4 +172,117 @@ uploadBox.addEventListener("drop", (event) => {
   handleFileUpload(file);
 });
 
-console.log("Reel Spark script loaded. Ready for resume upload.");
+// ---------- LinkedIn inputs ----------
+headlineInput.addEventListener("input", (event) => {
+  linkedinState.headline = event.target.value.trim();
+  updateAnalyzeButtonState();
+});
+
+aboutInput.addEventListener("input", (event) => {
+  linkedinState.about = event.target.value.trim();
+  updateAnalyzeButtonState();
+});
+
+// ---------- Validation: enable/disable Analyze button ----------
+function updateAnalyzeButtonState() {
+  const allFieldsFilled =
+    resumeState.isValid &&
+    linkedinState.headline.length > 0 &&
+    linkedinState.about.length > 0;
+
+  analyzeBtn.disabled = !allFieldsFilled;
+  validationHint.hidden = allFieldsFilled;
+}
+
+// ---------- Tab switching ----------
+function switchTab(tabName) {
+  tabButtons.forEach((btn) => {
+    if (btn.dataset.tab === tabName) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+
+  tabContents.forEach((content) => {
+    if (content.id === `tab-${tabName}`) {
+      content.classList.add("active");
+    } else {
+      content.classList.remove("active");
+    }
+  });
+
+  appState.currentTab = tabName;
+}
+
+tabButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    switchTab(btn.dataset.tab);
+  });
+});
+
+// ---------- Simulated "Analyze" flow (placeholder — real AI comes Day 6) ----------
+const loadingMessages = [
+  "Reading your resume...",
+  "Comparing with LinkedIn...",
+  "Polishing suggestions...",
+];
+
+function runSimulatedAnalysis() {
+  appState.isLoading = true;
+  loadingSection.hidden = false;
+  resultsSection.hidden = true;
+  analyzeBtn.disabled = true;
+
+  let messageIndex = 0;
+  loadingText.textContent = loadingMessages[0];
+
+  const messageInterval = setInterval(() => {
+    messageIndex = (messageIndex + 1) % loadingMessages.length;
+    loadingText.textContent = loadingMessages[messageIndex];
+  }, 900);
+
+  // Simulate network delay before showing (placeholder) results
+  setTimeout(() => {
+    clearInterval(messageInterval);
+    appState.isLoading = false;
+    loadingSection.hidden = true;
+    resultsSection.hidden = false;
+    analyzeBtn.disabled = false;
+    switchTab("score");
+
+    console.log("Simulated analysis complete. Real AI integration comes on Day 6.");
+    console.log("Resume text length:", resumeState.extractedText.length);
+    console.log("LinkedIn headline:", linkedinState.headline);
+    console.log("LinkedIn about:", linkedinState.about);
+  }, 2200);
+}
+
+analyzeBtn.addEventListener("click", () => {
+  if (analyzeBtn.disabled) return;
+  runSimulatedAnalysis();
+});
+
+// ---------- Copy to clipboard ----------
+copyButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const rewriteBlock = button.closest(".rewrite-block");
+    const textElement = rewriteBlock.querySelector(".rewrite-suggested");
+    const textToCopy = textElement.textContent;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const originalLabel = button.textContent;
+      button.textContent = "Copied!";
+      button.classList.add("copied");
+
+      setTimeout(() => {
+        button.textContent = originalLabel;
+        button.classList.remove("copied");
+      }, 1500);
+    }).catch((err) => {
+      console.error("Copy failed:", err);
+    });
+  });
+});
+
+console.log("Reel Spark script loaded. Day 5 features ready: LinkedIn inputs, tabs, validation.");
