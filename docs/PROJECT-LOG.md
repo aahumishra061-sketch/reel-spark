@@ -68,7 +68,24 @@ Status: Resume upload and parsing fully working and verified on the live site. R
 
 ## Day 5
 
-Not yet started.
+Added LinkedIn Headline and About Section input fields to index.html,
+matching styles already prepared in style.css.
+
+Added Analyze button with validation hint — enables only when resume
+is uploaded and both LinkedIn fields are filled.
+
+Added loading section with spinner and rotating status messages, and
+a full 4-tab results shell: Score, Suggestions, Consistency, Rewritten
+— with working tab switching and copy-to-clipboard buttons.
+
+Verified the entire flow live on GitHub Pages: upload, analyze,
+all 4 tabs, and copy button all worked correctly.
+
+No paid tools or API keys used — pdf.js and mammoth.js only, both free.
+
+Status: LinkedIn inputs and full tabbed results UI shell complete and
+verified. Next: Day 6 — real Claude API integration to replace
+simulated data.
 
 ## Day 6
 
