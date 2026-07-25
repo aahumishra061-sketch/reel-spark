@@ -26,9 +26,94 @@
       <p id="uploadSuccess" class="success-message" hidden></p>
     </section>
 
-    <section class="preview-section" id="previewSection" hidden>
-      <h2>Extracted Resume Text (temporary preview)</h2>
-      <pre id="resumeTextPreview" class="text-preview"></pre>
+    <section class="linkedin-section">
+      <label for="headlineInput" class="field-label">LinkedIn Headline</label>
+      <input
+        type="text"
+        id="headlineInput"
+        class="text-input"
+        placeholder="e.g. Aspiring Data Analyst | MBA | AI Enthusiast"
+        maxlength="220"
+      >
+
+      <label for="aboutInput" class="field-label">LinkedIn About Section</label>
+      <textarea
+        id="aboutInput"
+        class="textarea-input"
+        rows="6"
+        placeholder="Paste your LinkedIn About section here..."
+      ></textarea>
+    </section>
+
+    <section class="action-section">
+      <button id="analyzeBtn" class="analyze-button" disabled>Analyze My Profile</button>
+      <p id="validationHint" class="validation-hint">Upload a resume and fill in both LinkedIn fields to continue.</p>
+    </section>
+
+    <section class="loading-section" id="loadingSection" hidden>
+      <div class="spinner"></div>
+      <p id="loadingText">Reading your resume...</p>
+    </section>
+
+    <section class="results-section" id="resultsSection" hidden>
+      <div class="tab-bar">
+        <button class="tab-button active" data-tab="score">Score</button>
+        <button class="tab-button" data-tab="suggestions">Suggestions</button>
+        <button class="tab-button" data-tab="consistency">Consistency</button>
+        <button class="tab-button" data-tab="rewritten">Rewritten</button>
+      </div>
+
+      <div class="tab-content active" id="tab-score">
+        <div class="score-block">
+          <span class="score-label">Resume Score</span>
+          <span class="score-value">78 / 100</span>
+          <p class="score-reason">Strong technical section, but the summary could be more specific to your target role.</p>
+        </div>
+        <div class="score-block">
+          <span class="score-label">LinkedIn Score</span>
+          <span class="score-value">65 / 100</span>
+          <p class="score-reason">Headline is generic — could better highlight your specific skills and goals.</p>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-suggestions">
+        <ul class="suggestions-list">
+          <li>Add specific tools and technologies you've used in each project.</li>
+          <li>Quantify achievements with numbers where possible (e.g. "improved X by Y%").</li>
+          <li>Tighten your LinkedIn headline to lead with your strongest skill.</li>
+        </ul>
+      </div>
+
+      <div class="tab-content" id="tab-consistency">
+        <div class="consistency-block">
+          <h3 class="consistency-heading match">✅ What matches well</h3>
+          <ul class="consistency-list">
+            <li>Education details are consistent across both.</li>
+            <li>Core skills like Excel and Data Analysis appear in both.</li>
+          </ul>
+        </div>
+        <div class="consistency-block">
+          <h3 class="consistency-heading mismatch">⚠️ What doesn't match</h3>
+          <ul class="consistency-list">
+            <li><strong>Skill mismatch:</strong> Resume mentions "Python" but it's missing from your LinkedIn profile.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-rewritten">
+        <div class="rewrite-block">
+          <span class="rewrite-label">Current Headline</span>
+          <p class="rewrite-original">Aspiring Data Analyst | MBA</p>
+          <span class="rewrite-label">✨ AI-Suggested Headline</span>
+          <p class="rewrite-suggested">Aspiring Data Analyst | Python, Excel &amp; AI Tools | MBA | Turning Data Into Decisions</p>
+          <button class="copy-button" data-copy-target="rewrite-headline-text">Copy</button>
+        </div>
+        <div class="rewrite-block">
+          <span class="rewrite-label">✨ AI-Suggested About Section</span>
+          <p class="rewrite-suggested">Motivated fresher with hands-on experience building AI-powered tools and dashboards. Skilled in Python, Excel, and data analysis, with a passion for turning raw data into clear, actionable insights. Currently expanding my skills through real-world AI projects.</p>
+          <button class="copy-button" data-copy-target="rewrite-about-text">Copy</button>
+        </div>
+      </div>
     </section>
   </main>
 
