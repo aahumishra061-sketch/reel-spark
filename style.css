@@ -177,6 +177,9 @@ section {
   align-items: center;
   padding: 32px 16px;
 }
+  .loading-section[hidden] {
+  display: none;
+  }
 
 .spinner {
   width: 40px;
