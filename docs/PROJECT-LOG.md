@@ -89,7 +89,35 @@ simulated data.
 
 ## Day 6
 
-Not yet started.
+Replaced the simulated analysis with a real Google Gemini API integration.
+Built a Cloudflare Worker (reel-spark-proxy) to securely proxy Gemini
+requests so the API key never appears in the public GitHub repository —
+switched to Gemini specifically because it offers a free tier, unlike
+the paid Anthropic Claude API.
+
+Updated script.js to call the Worker and dynamically render real AI
+output across all 4 result tabs (Score, Suggestions, Consistency,
+Rewritten), replacing all static placeholder content.
+
+Added the required footer: "Built with Claude as part of the AB Talks
+60-Day Claude AI Challenge," visible on the deployed live site.
+
+Hit and resolved two blockers: an initial Gemini API key committed
+directly into config.js was auto-revoked by Google within minutes of
+being publicly exposed on GitHub (expected security behavior, not a
+bug); and the Gemini model name became deprecated mid-session and was
+updated to gemini-3.6-flash. Also fixed a CSS bug causing the loading
+spinner to stay visible at all times.
+
+Verified the entire flow live on GitHub Pages with both PDF and DOCX
+resumes: upload, real AI analysis, all 4 tabs showing genuine
+AI-generated content, and working copy-to-clipboard.
+
+No paid tools or API keys used — Google AI Studio (free Gemini key)
+and Cloudflare Workers (free tier) only.
+
+Status: Fully functional MVP complete and verified live. Next: Day 7 —
+polish, edge-case handling, and further refinement.
 
 ## Day 7
 
