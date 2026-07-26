@@ -1,32 +1,22 @@
-// Reel Spark - Day 5: Tab switching, validation, simulated analyze flow
-// (Real Claude API integration comes on Day 6 — this uses placeholder data for now)
 
-// Configure pdf.js worker (required for pdf.js to function)
-if (typeof pdfjsLib !== "undefined") {
+    // Reel Spark — Day 6: Real Gemini AI integration
+
+if (window.pdfjsLib) {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 }
 
-// In-memory state (per SCHEMA.md)
-let resumeState = {
-  fileName: null,
-  fileType: null,
-  extractedText: "",
-  isValid: false,
-};
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-let linkedinState = {
+const state = {
+  resumeText: "",
+  resumeFileName: "",
+  isResumeValid: false,
   headline: "",
   about: "",
 };
 
-let appState = {
-  currentTab: "score",
-  isLoading: false,
-  hasError: false,
-};
-
-// ---------- Grab elements ----------
+// DOM references
 const resumeInput = document.getElementById("resumeInput");
 const uploadBox = document.getElementById("uploadBox");
 const uploadText = document.getElementById("uploadText");
@@ -38,6 +28,7 @@ const aboutInput = document.getElementById("aboutInput");
 
 const analyzeBtn = document.getElementById("analyzeBtn");
 const validationHint = document.getElementById("validationHint");
+const analysisError = document.getElementById("analysisError");
 
 const loadingSection = document.getElementById("loadingSection");
 const loadingText = document.getElementById("loadingText");
@@ -45,244 +36,299 @@ const resultsSection = document.getElementById("resultsSection");
 
 const tabButtons = document.querySelectorAll(".tab-button");
 const tabContents = document.querySelectorAll(".tab-content");
-
 const copyButtons = document.querySelectorAll(".copy-button");
 
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+// ---------- File upload & parsing ----------
 
-// ---------- Upload helpers (from Day 4) ----------
-function showError(message) {
-  uploadError.textContent = message;
+function showUploadError(message) {
   uploadError.hidden = false;
-  uploadSuccess.hidden = true;
-  resumeState.isValid = false;
-  updateAnalyzeButtonState();
+  uploadError.textContent = message;
 }
 
-function showSuccess(message) {
-  uploadSuccess.textContent = message;
-  uploadSuccess.hidden = false;
-  uploadError.hidden = true;
-}
-
-function clearMessages() {
-  uploadError.hidden = true;
-  uploadSuccess.hidden = true;
-}
-
-async function extractTextFromPDF(file) {
+async function extractPdfText(file) {
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
   let fullText = "";
-
-  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-    const page = await pdf.getPage(pageNum);
-    const textContent = await page.getTextContent();
-    const pageText = textContent.items.map((item) => item.str).join(" ");
-    fullText += pageText + "\n\n";
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map((item) => item.str).join(" ");
+    fullText += pageText + "\n";
   }
-
-  return fullText.trim();
+  return fullText;
 }
 
-async function extractTextFromDOCX(file) {
+async function extractDocxText(file) {
   const arrayBuffer = await file.arrayBuffer();
-  const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
-  return result.value.trim();
+  const result = await mammoth.extractRawText({ arrayBuffer });
+  return result.value;
 }
 
-async function handleFileUpload(file) {
-  clearMessages();
+async function handleFile(file) {
+  uploadError.hidden = true;
+  uploadSuccess.hidden = true;
+  state.isResumeValid = false;
+  state.resumeText = "";
+  updateAnalyzeButtonState();
 
-  if (!file) {
+  if (!file) return;
+
+  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+  const isDocx = file.name.toLowerCase().endsWith(".docx");
+
+  if (!isPdf && !isDocx) {
+    showUploadError("Please upload a .pdf or .docx file.");
     return;
   }
 
-  if (file.size > MAX_FILE_SIZE_BYTES) {
-    showError("That file is too large. Please upload a resume under 5MB.");
+  if (file.size > MAX_FILE_SIZE) {
+    showUploadError("File is too large. Max size is 5MB.");
     return;
   }
 
-  const fileName = file.name.toLowerCase();
-  let fileType = null;
-
-  if (fileName.endsWith(".pdf")) {
-    fileType = "pdf";
-  } else if (fileName.endsWith(".docx")) {
-    fileType = "docx";
-  } else {
-    showError("Please upload a .pdf or .docx file. Other formats aren't supported yet.");
-    return;
-  }
-
-  uploadText.textContent = "Reading your resume...";
+  uploadText.textContent = "Reading file...";
 
   try {
-    let extractedText = "";
+    const text = isPdf ? await extractPdfText(file) : await extractDocxText(file);
 
-    if (fileType === "pdf") {
-      extractedText = await extractTextFromPDF(file);
-    } else if (fileType === "docx") {
-      extractedText = await extractTextFromDOCX(file);
-    }
-
-    if (!extractedText || extractedText.length === 0) {
-      showError(
-        "We couldn't find any text in that file. If it's a scanned/image-only PDF, please try a text-based version instead."
-      );
+    if (!text || text.trim().length < 20) {
+      showUploadError("Could not read text from this file. Try a different file.");
       uploadText.textContent = "Drag & drop your resume, or tap to browse";
       return;
     }
 
-    resumeState = {
-      fileName: file.name,
-      fileType: fileType,
-      extractedText: extractedText,
-      isValid: true,
-    };
-
+    state.resumeText = text;
+    state.resumeFileName = file.name;
+    state.isResumeValid = true;
     uploadText.textContent = "Drag & drop your resume, or tap to browse";
-    showSuccess(`"${file.name}" uploaded and read successfully.`);
-    updateAnalyzeButtonState();
+    uploadSuccess.hidden = false;
+    uploadSuccess.textContent = `"${file.name}" uploaded and read successfully.`;
   } catch (err) {
-    console.error("Error parsing file:", err);
-    showError("Something went wrong while reading that file. Please try again or use a different file.");
+    console.error(err);
+    showUploadError("Something went wrong reading this file. Please try again.");
     uploadText.textContent = "Drag & drop your resume, or tap to browse";
   }
+
+  updateAnalyzeButtonState();
 }
 
-resumeInput.addEventListener("change", (event) => {
-  const file = event.target.files[0];
-  handleFileUpload(file);
+resumeInput.addEventListener("change", () => {
+  handleFile(resumeInput.files[0]);
 });
 
-uploadBox.addEventListener("dragover", (event) => {
-  event.preventDefault();
-  uploadBox.classList.add("drag-over");
+uploadBox.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  uploadBox.classList.add("drag-active");
 });
 
 uploadBox.addEventListener("dragleave", () => {
-  uploadBox.classList.remove("drag-over");
+  uploadBox.classList.remove("drag-active");
 });
 
-uploadBox.addEventListener("drop", (event) => {
-  event.preventDefault();
-  uploadBox.classList.remove("drag-over");
-  const file = event.dataTransfer.files[0];
-  handleFileUpload(file);
+uploadBox.addEventListener("drop", (e) => {
+  e.preventDefault();
+  uploadBox.classList.remove("drag-active");
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    resumeInput.files = e.dataTransfer.files;
+    handleFile(file);
+  }
 });
 
-// ---------- LinkedIn inputs ----------
-headlineInput.addEventListener("input", (event) => {
-  linkedinState.headline = event.target.value.trim();
+// ---------- LinkedIn fields ----------
+
+headlineInput.addEventListener("input", () => {
+  state.headline = headlineInput.value;
   updateAnalyzeButtonState();
 });
 
-aboutInput.addEventListener("input", (event) => {
-  linkedinState.about = event.target.value.trim();
+aboutInput.addEventListener("input", () => {
+  state.about = aboutInput.value;
   updateAnalyzeButtonState();
 });
 
-// ---------- Validation: enable/disable Analyze button ----------
 function updateAnalyzeButtonState() {
-  const allFieldsFilled =
-    resumeState.isValid &&
-    linkedinState.headline.length > 0 &&
-    linkedinState.about.length > 0;
-
-  analyzeBtn.disabled = !allFieldsFilled;
-  validationHint.hidden = allFieldsFilled;
+  const allFilled =
+    state.isResumeValid && state.headline.trim().length > 0 && state.about.trim().length > 0;
+  analyzeBtn.disabled = !allFilled;
+  validationHint.hidden = allFilled;
 }
 
-// ---------- Tab switching ----------
-function switchTab(tabName) {
-  tabButtons.forEach((btn) => {
-    if (btn.dataset.tab === tabName) {
-      btn.classList.add("active");
-    } else {
-      btn.classList.remove("active");
-    }
-  });
+// ---------- Gemini API ----------
 
-  tabContents.forEach((content) => {
-    if (content.id === `tab-${tabName}`) {
-      content.classList.add("active");
-    } else {
-      content.classList.remove("active");
-    }
-  });
+async function callGeminiAPI(resumeText, headline, about) {
+  if (typeof GEMINI_API_KEY === "undefined" || !GEMINI_API_KEY || GEMINI_API_KEY === "PASTE_YOUR_GEMINI_API_KEY_HERE") {
+    throw new Error("No Gemini API key found. Please add your key in config.js.");
+  }
 
-  appState.currentTab = tabName;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+  const prompt = `You are a career coach reviewing a fresher's resume and LinkedIn profile.
+
+Return ONLY valid JSON matching exactly this shape, with no markdown formatting and no extra text outside the JSON:
+{
+  "resumeScore": <integer 0-100>,
+  "resumeReason": "<one short sentence explaining the resume score>",
+  "linkedinScore": <integer 0-100>,
+  "linkedinReason": "<one short sentence explaining the LinkedIn score>",
+  "suggestions": ["<actionable tip 1>", "<actionable tip 2>", "<actionable tip 3>"],
+  "matches": ["<point where resume and LinkedIn agree>", "<another match>"],
+  "mismatches": ["<point where resume and LinkedIn disagree or one is missing something>"],
+  "suggestedHeadline": "<an improved LinkedIn headline, under 220 characters>",
+  "suggestedAbout": "<an improved LinkedIn About section, 3-5 sentences>"
 }
 
-tabButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    switchTab(btn.dataset.tab);
-  });
-});
+RESUME TEXT:
+"""
+${resumeText.slice(0, 6000)}
+"""
 
-// ---------- Simulated "Analyze" flow (placeholder — real AI comes Day 6) ----------
+CURRENT LINKEDIN HEADLINE:
+"""
+${headline}
+"""
+
+CURRENT LINKEDIN ABOUT SECTION:
+"""
+${about}
+"""`;
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.4,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const errBody = await response.text().catch(() => "");
+    throw new Error(`Gemini API error (${response.status}). ${errBody.slice(0, 200)}`);
+  }
+
+  const data = await response.json();
+  const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+  if (!rawText) {
+    throw new Error("Gemini API returned an empty response.");
+  }
+
+  try {
+    return JSON.parse(rawText);
+  } catch (e) {
+    throw new Error("Could not understand the AI response. Please try again.");
+  }
+}
+
+function renderResults(result) {
+  document.getElementById("resumeScoreValue").textContent = `${result.resumeScore} / 100`;
+  document.getElementById("resumeScoreReason").textContent = result.resumeReason || "";
+  document.getElementById("linkedinScoreValue").textContent = `${result.linkedinScore} / 100`;
+  document.getElementById("linkedinScoreReason").textContent = result.linkedinReason || "";
+
+  const suggestionsList = document.getElementById("suggestionsList");
+  suggestionsList.innerHTML = "";
+  (result.suggestions || []).forEach((tip) => {
+    const li = document.createElement("li");
+    li.textContent = tip;
+    suggestionsList.appendChild(li);
+  });
+
+  const matchList = document.getElementById("matchList");
+  matchList.innerHTML = "";
+  (result.matches || []).forEach((point) => {
+    const li = document.createElement("li");
+    li.textContent = point;
+    matchList.appendChild(li);
+  });
+
+  const mismatchList = document.getElementById("mismatchList");
+  mismatchList.innerHTML = "";
+  (result.mismatches || []).forEach((point) => {
+    const li = document.createElement("li");
+    li.textContent = point;
+    mismatchList.appendChild(li);
+  });
+
+  document.getElementById("currentHeadlineText").textContent = state.headline;
+  document.getElementById("suggestedHeadlineText").textContent = result.suggestedHeadline || "";
+  document.getElementById("suggestedAboutText").textContent = result.suggestedAbout || "";
+}
+
 const loadingMessages = [
   "Reading your resume...",
-  "Comparing with LinkedIn...",
-  "Polishing suggestions...",
+  "Comparing it with your LinkedIn profile...",
+  "Scoring your profile...",
+  "Writing suggestions...",
+  "Almost done...",
 ];
 
-function runSimulatedAnalysis() {
-  appState.isLoading = true;
-  loadingSection.hidden = false;
+async function runAnalysis() {
+  analysisError.hidden = true;
   resultsSection.hidden = true;
-  analyzeBtn.disabled = true;
+  loadingSection.hidden = false;
 
   let messageIndex = 0;
   loadingText.textContent = loadingMessages[0];
-
-  const messageInterval = setInterval(() => {
+  const messageTimer = setInterval(() => {
     messageIndex = (messageIndex + 1) % loadingMessages.length;
     loadingText.textContent = loadingMessages[messageIndex];
-  }, 900);
+  }, 1800);
 
-  // Simulate network delay before showing (placeholder) results
-  setTimeout(() => {
-    clearInterval(messageInterval);
-    appState.isLoading = false;
+  try {
+    const result = await callGeminiAPI(state.resumeText, state.headline, state.about);
+    renderResults(result);
     loadingSection.hidden = true;
     resultsSection.hidden = false;
-    analyzeBtn.disabled = false;
     switchTab("score");
-
-    console.log("Simulated analysis complete. Real AI integration comes on Day 6.");
-    console.log("Resume text length:", resumeState.extractedText.length);
-    console.log("LinkedIn headline:", linkedinState.headline);
-    console.log("LinkedIn about:", linkedinState.about);
-  }, 2200);
+  } catch (err) {
+    console.error(err);
+    loadingSection.hidden = true;
+    analysisError.hidden = false;
+    analysisError.textContent = `Something went wrong: ${err.message}`;
+  } finally {
+    clearInterval(messageTimer);
+  }
 }
 
-analyzeBtn.addEventListener("click", () => {
-  if (analyzeBtn.disabled) return;
-  runSimulatedAnalysis();
+analyzeBtn.addEventListener("click", runAnalysis);
+
+// ---------- Tabs ----------
+
+function switchTab(tabName) {
+  tabButtons.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.tab === tabName);
+  });
+  tabContents.forEach((content) => {
+    content.classList.toggle("active", content.id === `tab-${tabName}`);
+  });
+}
+
+tabButtons.forEach((btn) => {
+  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
 });
 
-// ---------- Copy to clipboard ----------
-copyButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const rewriteBlock = button.closest(".rewrite-block");
-    const textElement = rewriteBlock.querySelector(".rewrite-suggested");
-    const textToCopy = textElement.textContent;
+// ---------- Copy buttons ----------
 
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      const originalLabel = button.textContent;
-      button.textContent = "Copied!";
-      button.classList.add("copied");
+copyButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const block = btn.closest(".rewrite-block");
+    const textEl = block.querySelector(".rewrite-suggested");
+    if (!textEl || !textEl.textContent) return;
 
+    navigator.clipboard.writeText(textEl.textContent).then(() => {
+      const original = btn.textContent;
+      btn.textContent = "Copied!";
+      btn.classList.add("copied");
       setTimeout(() => {
-        button.textContent = originalLabel;
-        button.classList.remove("copied");
-      }, 1500);
-    }).catch((err) => {
-      console.error("Copy failed:", err);
+        btn.textContent = original;
+        btn.classList.remove("copied");
+      }, 2000);
     });
   });
 });
-
-console.log("Reel Spark script loaded. Day 5 features ready: LinkedIn inputs, tabs, validation.");
+    
