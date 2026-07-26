@@ -48,6 +48,7 @@
     <section class="action-section">
       <button id="analyzeBtn" class="analyze-button" disabled>Analyze My Profile</button>
       <p id="validationHint" class="validation-hint">Upload a resume and fill in both LinkedIn fields to continue.</p>
+      <p id="analysisError" class="error-message" hidden></p>
     </section>
 
     <section class="loading-section" id="loadingSection" hidden>
@@ -63,65 +64,65 @@
         <button class="tab-button" data-tab="rewritten">Rewritten</button>
       </div>
 
+      <!-- Score tab -->
       <div class="tab-content active" id="tab-score">
         <div class="score-block">
           <span class="score-label">Resume Score</span>
-          <span class="score-value">78 / 100</span>
-          <p class="score-reason">Strong technical section, but the summary could be more specific to your target role.</p>
+          <span class="score-value" id="resumeScoreValue">-- / 100</span>
+          <p class="score-reason" id="resumeScoreReason"></p>
         </div>
         <div class="score-block">
           <span class="score-label">LinkedIn Score</span>
-          <span class="score-value">65 / 100</span>
-          <p class="score-reason">Headline is generic — could better highlight your specific skills and goals.</p>
+          <span class="score-value" id="linkedinScoreValue">-- / 100</span>
+          <p class="score-reason" id="linkedinScoreReason"></p>
         </div>
       </div>
 
+      <!-- Suggestions tab -->
       <div class="tab-content" id="tab-suggestions">
-        <ul class="suggestions-list">
-          <li>Add specific tools and technologies you've used in each project.</li>
-          <li>Quantify achievements with numbers where possible (e.g. "improved X by Y%").</li>
-          <li>Tighten your LinkedIn headline to lead with your strongest skill.</li>
-        </ul>
+        <ul class="suggestions-list" id="suggestionsList"></ul>
       </div>
 
+      <!-- Consistency tab -->
       <div class="tab-content" id="tab-consistency">
         <div class="consistency-block">
           <h3 class="consistency-heading match">✅ What matches well</h3>
-          <ul class="consistency-list">
-            <li>Education details are consistent across both.</li>
-            <li>Core skills like Excel and Data Analysis appear in both.</li>
-          </ul>
+          <ul class="consistency-list" id="matchList"></ul>
         </div>
         <div class="consistency-block">
           <h3 class="consistency-heading mismatch">⚠️ What doesn't match</h3>
-          <ul class="consistency-list">
-            <li><strong>Skill mismatch:</strong> Resume mentions "Python" but it's missing from your LinkedIn profile.</li>
-          </ul>
+          <ul class="consistency-list" id="mismatchList"></ul>
         </div>
       </div>
 
+      <!-- Rewritten tab -->
       <div class="tab-content" id="tab-rewritten">
         <div class="rewrite-block">
           <span class="rewrite-label">Current Headline</span>
-          <p class="rewrite-original">Aspiring Data Analyst | MBA</p>
+          <p class="rewrite-original" id="currentHeadlineText"></p>
           <span class="rewrite-label">✨ AI-Suggested Headline</span>
-          <p class="rewrite-suggested">Aspiring Data Analyst | Python, Excel &amp; AI Tools | MBA | Turning Data Into Decisions</p>
-          <button class="copy-button" data-copy-target="rewrite-headline-text">Copy</button>
+          <p class="rewrite-suggested" id="suggestedHeadlineText"></p>
+          <button class="copy-button">Copy</button>
         </div>
         <div class="rewrite-block">
           <span class="rewrite-label">✨ AI-Suggested About Section</span>
-          <p class="rewrite-suggested">Motivated fresher with hands-on experience building AI-powered tools and dashboards. Skilled in Python, Excel, and data analysis, with a passion for turning raw data into clear, actionable insights. Currently expanding my skills through real-world AI projects.</p>
-          <button class="copy-button" data-copy-target="rewrite-about-text">Copy</button>
+          <p class="rewrite-suggested" id="suggestedAboutText"></p>
+          <button class="copy-button">Copy</button>
         </div>
       </div>
     </section>
   </main>
+
+  <footer class="app-footer">
+    <p>Built with Claude as part of the AB Talks 60-Day Claude AI Challenge.</p>
+  </footer>
 
   <!-- PDF parsing library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <!-- DOCX parsing library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 
+  <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
