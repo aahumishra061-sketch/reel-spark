@@ -502,38 +502,36 @@ section {
   .app-header h1 {
     font-size: 2.1rem;
   }
-
-  #tab-score {
+#tab-score.active {
     display: flex;
     gap: var(--space-2);
   }
 
-  #tab-score .score-block {
+  #tab-score.active .score-block {
     flex: 1;
     margin-bottom: 0;
   }
 
-  #tab-consistency {
+  #tab-consistency.active {
     display: flex;
     gap: var(--space-2);
   }
 
-  #tab-consistency .consistency-block {
+  #tab-consistency.active .consistency-block {
     flex: 1;
     margin-bottom: 0;
   }
 
-  #tab-rewritten {
+  #tab-rewritten.active {
     display: flex;
     gap: var(--space-2);
   }
 
-  #tab-rewritten .rewrite-block {
+  #tab-rewritten.active .rewrite-block {
     flex: 1;
     margin-bottom: 0;
   }
-}
-
+  
 /* Small phones: tighten up spacing a little */
 @media (max-width: 380px) {
   .app-header h1 {
