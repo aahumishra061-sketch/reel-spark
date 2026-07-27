@@ -1,4 +1,4 @@
-// Reel Spark — Day 9: accessible tabs, keyboard support, empty-state fallbacks
+// Reel Spark — Day 9 (part 2): score bars, char counter, reset flow, focus management
 
 if (window.pdfjsLib) {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -23,6 +23,7 @@ const uploadError = document.getElementById("uploadError");
 const uploadSuccess = document.getElementById("uploadSuccess");
 
 const headlineInput = document.getElementById("headlineInput");
+const headlineCount = document.getElementById("headlineCount");
 const aboutInput = document.getElementById("aboutInput");
 
 const analyzeBtn = document.getElementById("analyzeBtn");
@@ -32,10 +33,14 @@ const analysisError = document.getElementById("analysisError");
 const loadingSection = document.getElementById("loadingSection");
 const loadingText = document.getElementById("loadingText");
 const resultsSection = document.getElementById("resultsSection");
+const resultsHeading = document.getElementById("results-heading");
+const resetBtn = document.getElementById("resetBtn");
 
 const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
 const tabContents = document.querySelectorAll(".tab-content");
 const copyButtons = document.querySelectorAll(".copy-button");
+
+const ANALYZE_DEFAULT_LABEL = "Analyze My Profile";
 
 // ---------- File upload & parsing ----------
 
@@ -138,6 +143,7 @@ uploadBox.addEventListener("drop", (e) => {
 
 headlineInput.addEventListener("input", () => {
   state.headline = headlineInput.value;
+  headlineCount.textContent = `${headlineInput.value.length} / 220`;
   updateAnalyzeButtonState();
 });
 
@@ -237,11 +243,22 @@ function fillListOrFallback(listEl, items, fallbackText) {
   });
 }
 
+function setScoreBar(barId, score) {
+  const bar = document.getElementById(barId);
+  const clamped = Math.max(0, Math.min(100, Number(score) || 0));
+  requestAnimationFrame(() => {
+    bar.style.width = `${clamped}%`;
+  });
+}
+
 function renderResults(result) {
   document.getElementById("resumeScoreValue").textContent = `${result.resumeScore} / 100`;
   document.getElementById("resumeScoreReason").textContent = result.resumeReason || "";
+  setScoreBar("resumeScoreBar", result.resumeScore);
+
   document.getElementById("linkedinScoreValue").textContent = `${result.linkedinScore} / 100`;
   document.getElementById("linkedinScoreReason").textContent = result.linkedinReason || "";
+  setScoreBar("linkedinScoreBar", result.linkedinScore);
 
   fillListOrFallback(
     document.getElementById("suggestionsList"),
@@ -279,6 +296,9 @@ async function runAnalysis() {
   resultsSection.hidden = true;
   loadingSection.hidden = false;
 
+  analyzeBtn.disabled = true;
+  analyzeBtn.textContent = "Analyzing...";
+
   let messageIndex = 0;
   loadingText.textContent = loadingMessages[0];
   const messageTimer = setInterval(() => {
@@ -292,6 +312,9 @@ async function runAnalysis() {
     loadingSection.hidden = true;
     resultsSection.hidden = false;
     switchTab("score");
+
+    resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    resultsHeading.focus({ preventScroll: true });
   } catch (err) {
     console.error(err);
     loadingSection.hidden = true;
@@ -299,10 +322,37 @@ async function runAnalysis() {
     analysisError.textContent = `Something went wrong: ${err.message}`;
   } finally {
     clearInterval(messageTimer);
+    analyzeBtn.textContent = ANALYZE_DEFAULT_LABEL;
+    updateAnalyzeButtonState();
   }
 }
 
 analyzeBtn.addEventListener("click", runAnalysis);
+
+// ---------- Start Over ----------
+
+resetBtn.addEventListener("click", () => {
+  state.resumeText = "";
+  state.resumeFileName = "";
+  state.isResumeValid = false;
+  state.headline = "";
+  state.about = "";
+
+  resumeInput.value = "";
+  uploadError.hidden = true;
+  uploadSuccess.hidden = true;
+  uploadText.textContent = "Drag & drop your resume, or tap to browse";
+
+  headlineInput.value = "";
+  aboutInput.value = "";
+  headlineCount.textContent = "0 / 220";
+
+  resultsSection.hidden = true;
+  analysisError.hidden = true;
+  updateAnalyzeButtonState();
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
 
 // ---------- Accessible tabs (roving tabindex + arrow key navigation) ----------
 
