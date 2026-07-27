@@ -121,15 +121,37 @@ polish, edge-case handling, and further refinement.
 
 ## Day 7
 
-Not yet started.
+Completed Day 9 (blueprint) — Product Refinement & UI/UX Polish. Did a
+full visual pass on style.css using a consistent spacing scale, added
+responsive breakpoints for tablet/desktop (side-by-side result cards)
+and small phones, and added a favicon.
+
+Converted the tab interface to the proper ARIA tabs pattern with full
+keyboard navigation (arrow keys, Home/End) and fixed a pre-existing
+accessibility gap where the resume upload control wasn't keyboard
+reachable.
+
+Added UX refinements: animated score progress bars, a live character
+counter on the headline field, a "Start Over" reset button, an
+"Analyzing..." button state to prevent double-submits, auto-scroll to
+results with focus management, and empty-state fallback messages.
+
+Found and fixed a CSS bug (introduced during this session) where all
+four result tabs displayed simultaneously on wider screens instead of
+only the active one — root cause was an unscoped media query rule.
+
+Verified the full flow live on GitHub Pages after each change.
+
+No paid tools or new services used — pure front-end refinement.
+
+Status: App is now feature-complete, accessible, and visually polished.
+Next: Day 10 — final regression testing, cross-browser/mobile checks,
+README completion, and v1.0 launch checklist.
 
 ## Day 8
 
-Not yet started.
 
 ## Day 9
-
-Not yet started.
 
 ## Day 10
 
