@@ -1,4 +1,4 @@
-// Reel Spark — Day 6: Real Gemini AI integration (via Cloudflare Worker)
+// Reel Spark — Day 9: accessible tabs, keyboard support, empty-state fallbacks
 
 if (window.pdfjsLib) {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -33,7 +33,7 @@ const loadingSection = document.getElementById("loadingSection");
 const loadingText = document.getElementById("loadingText");
 const resultsSection = document.getElementById("resultsSection");
 
-const tabButtons = document.querySelectorAll(".tab-button");
+const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
 const tabContents = document.querySelectorAll(".tab-content");
 const copyButtons = document.querySelectorAll(".copy-button");
 
@@ -173,6 +173,8 @@ Return ONLY valid JSON matching exactly this shape, with no markdown formatting 
   "suggestedAbout": "<an improved LinkedIn About section, 3-5 sentences>"
 }
 
+If there are genuinely no meaningful suggestions, matches, or mismatches, return an empty array for that field rather than inventing filler content.
+
 RESUME TEXT:
 """
 ${resumeText.slice(0, 6000)}
@@ -219,35 +221,45 @@ ${about}
   }
 }
 
+function fillListOrFallback(listEl, items, fallbackText) {
+  listEl.innerHTML = "";
+  if (!items || items.length === 0) {
+    const li = document.createElement("li");
+    li.textContent = fallbackText;
+    li.classList.add("empty-state-item");
+    listEl.appendChild(li);
+    return;
+  }
+  items.forEach((point) => {
+    const li = document.createElement("li");
+    li.textContent = point;
+    listEl.appendChild(li);
+  });
+}
+
 function renderResults(result) {
   document.getElementById("resumeScoreValue").textContent = `${result.resumeScore} / 100`;
   document.getElementById("resumeScoreReason").textContent = result.resumeReason || "";
   document.getElementById("linkedinScoreValue").textContent = `${result.linkedinScore} / 100`;
   document.getElementById("linkedinScoreReason").textContent = result.linkedinReason || "";
 
-  const suggestionsList = document.getElementById("suggestionsList");
-  suggestionsList.innerHTML = "";
-  (result.suggestions || []).forEach((tip) => {
-    const li = document.createElement("li");
-    li.textContent = tip;
-    suggestionsList.appendChild(li);
-  });
+  fillListOrFallback(
+    document.getElementById("suggestionsList"),
+    result.suggestions,
+    "Great! No major suggestions — your profile already looks solid."
+  );
 
-  const matchList = document.getElementById("matchList");
-  matchList.innerHTML = "";
-  (result.matches || []).forEach((point) => {
-    const li = document.createElement("li");
-    li.textContent = point;
-    matchList.appendChild(li);
-  });
+  fillListOrFallback(
+    document.getElementById("matchList"),
+    result.matches,
+    "No strong overlaps found yet between your resume and LinkedIn."
+  );
 
-  const mismatchList = document.getElementById("mismatchList");
-  mismatchList.innerHTML = "";
-  (result.mismatches || []).forEach((point) => {
-    const li = document.createElement("li");
-    li.textContent = point;
-    mismatchList.appendChild(li);
-  });
+  fillListOrFallback(
+    document.getElementById("mismatchList"),
+    result.mismatches,
+    "No mismatches found — your resume and LinkedIn align well!"
+  );
 
   document.getElementById("currentHeadlineText").textContent = state.headline;
   document.getElementById("suggestedHeadlineText").textContent = result.suggestedHeadline || "";
@@ -292,19 +304,40 @@ async function runAnalysis() {
 
 analyzeBtn.addEventListener("click", runAnalysis);
 
-// ---------- Tabs ----------
+// ---------- Accessible tabs (roving tabindex + arrow key navigation) ----------
 
 function switchTab(tabName) {
   tabButtons.forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.tab === tabName);
+    const isActive = btn.dataset.tab === tabName;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-selected", isActive ? "true" : "false");
+    btn.tabIndex = isActive ? 0 : -1;
   });
   tabContents.forEach((content) => {
     content.classList.toggle("active", content.id === `tab-${tabName}`);
   });
 }
 
-tabButtons.forEach((btn) => {
-  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+tabButtons.forEach((btn, index) => {
+  btn.addEventListener("click", () => {
+    switchTab(btn.dataset.tab);
+    btn.focus();
+  });
+
+  btn.addEventListener("keydown", (e) => {
+    let newIndex = null;
+    if (e.key === "ArrowRight") newIndex = (index + 1) % tabButtons.length;
+    if (e.key === "ArrowLeft") newIndex = (index - 1 + tabButtons.length) % tabButtons.length;
+    if (e.key === "Home") newIndex = 0;
+    if (e.key === "End") newIndex = tabButtons.length - 1;
+
+    if (newIndex !== null) {
+      e.preventDefault();
+      const nextBtn = tabButtons[newIndex];
+      switchTab(nextBtn.dataset.tab);
+      nextBtn.focus();
+    }
+  });
 });
 
 // ---------- Copy buttons ----------
