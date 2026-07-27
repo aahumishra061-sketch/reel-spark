@@ -37,7 +37,9 @@
         class="text-input"
         placeholder="e.g. Aspiring Data Analyst | MBA | AI Enthusiast"
         maxlength="220"
+        aria-describedby="headlineCount"
       >
+      <span class="field-count" id="headlineCount">0 / 220</span>
 
       <label for="aboutInput" class="field-label">LinkedIn About Section</label>
       <textarea
@@ -60,7 +62,7 @@
     </section>
 
     <section class="results-section" id="resultsSection" hidden aria-labelledby="results-heading">
-      <h2 id="results-heading" class="visually-hidden">Your results</h2>
+      <h2 id="results-heading" class="visually-hidden" tabindex="-1">Your results</h2>
       <div class="tab-bar" role="tablist" aria-label="Result categories">
         <button class="tab-button active" role="tab" id="tabbtn-score" aria-selected="true" aria-controls="tab-score" data-tab="score">Score</button>
         <button class="tab-button" role="tab" id="tabbtn-suggestions" aria-selected="false" aria-controls="tab-suggestions" data-tab="suggestions" tabindex="-1">Suggestions</button>
@@ -73,11 +75,13 @@
         <div class="score-block">
           <span class="score-label">Resume Score</span>
           <span class="score-value" id="resumeScoreValue">-- / 100</span>
+          <div class="score-bar" aria-hidden="true"><div class="score-bar-fill" id="resumeScoreBar"></div></div>
           <p class="score-reason" id="resumeScoreReason"></p>
         </div>
         <div class="score-block">
           <span class="score-label">LinkedIn Score</span>
           <span class="score-value" id="linkedinScoreValue">-- / 100</span>
+          <div class="score-bar" aria-hidden="true"><div class="score-bar-fill" id="linkedinScoreBar"></div></div>
           <p class="score-reason" id="linkedinScoreReason"></p>
         </div>
       </div>
@@ -114,6 +118,8 @@
           <button class="copy-button" type="button">Copy</button>
         </div>
       </div>
+
+      <button id="resetBtn" class="reset-button" type="button">Start Over with a New Profile</button>
     </section>
   </main>
 
