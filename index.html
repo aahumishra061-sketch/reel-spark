@@ -1,10 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reel Spark</title>
+  <meta name="description" content="Reel Spark uses AI to score your resume and LinkedIn profile, check consistency between them, and rewrite your headline and About section.">
+  <title>Reel Spark — AI Resume &amp; LinkedIn Optimizer</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,19 +15,21 @@
   </header>
 
   <main class="container">
-    <section class="upload-section">
+    <section class="upload-section" aria-labelledby="upload-heading">
+      <h2 id="upload-heading" class="visually-hidden">Upload your resume</h2>
       <label for="resumeInput" class="upload-box" id="uploadBox">
-        <span class="upload-icon">📄</span>
+        <span class="upload-icon" aria-hidden="true">📄</span>
         <span class="upload-text" id="uploadText">Drag &amp; drop your resume, or tap to browse</span>
         <span class="upload-hint">Accepts .pdf or .docx (max 5MB)</span>
       </label>
-      <input type="file" id="resumeInput" accept=".pdf,.docx" hidden>
+      <input type="file" id="resumeInput" accept=".pdf,.docx" class="visually-hidden-input">
 
-      <p id="uploadError" class="error-message" hidden></p>
-      <p id="uploadSuccess" class="success-message" hidden></p>
+      <p id="uploadError" class="error-message" role="alert" hidden></p>
+      <p id="uploadSuccess" class="success-message" role="status" hidden></p>
     </section>
 
-    <section class="linkedin-section">
+    <section class="linkedin-section" aria-labelledby="linkedin-heading">
+      <h2 id="linkedin-heading" class="visually-hidden">Your LinkedIn profile</h2>
       <label for="headlineInput" class="field-label">LinkedIn Headline</label>
       <input
         type="text"
@@ -48,24 +51,25 @@
     <section class="action-section">
       <button id="analyzeBtn" class="analyze-button" disabled>Analyze My Profile</button>
       <p id="validationHint" class="validation-hint">Upload a resume and fill in both LinkedIn fields to continue.</p>
-      <p id="analysisError" class="error-message" hidden></p>
+      <p id="analysisError" class="error-message" role="alert" hidden></p>
     </section>
 
-    <section class="loading-section" id="loadingSection" hidden>
-      <div class="spinner"></div>
+    <section class="loading-section" id="loadingSection" hidden aria-live="polite" aria-busy="true">
+      <div class="spinner" aria-hidden="true"></div>
       <p id="loadingText">Reading your resume...</p>
     </section>
 
-    <section class="results-section" id="resultsSection" hidden>
-      <div class="tab-bar">
-        <button class="tab-button active" data-tab="score">Score</button>
-        <button class="tab-button" data-tab="suggestions">Suggestions</button>
-        <button class="tab-button" data-tab="consistency">Consistency</button>
-        <button class="tab-button" data-tab="rewritten">Rewritten</button>
+    <section class="results-section" id="resultsSection" hidden aria-labelledby="results-heading">
+      <h2 id="results-heading" class="visually-hidden">Your results</h2>
+      <div class="tab-bar" role="tablist" aria-label="Result categories">
+        <button class="tab-button active" role="tab" id="tabbtn-score" aria-selected="true" aria-controls="tab-score" data-tab="score">Score</button>
+        <button class="tab-button" role="tab" id="tabbtn-suggestions" aria-selected="false" aria-controls="tab-suggestions" data-tab="suggestions" tabindex="-1">Suggestions</button>
+        <button class="tab-button" role="tab" id="tabbtn-consistency" aria-selected="false" aria-controls="tab-consistency" data-tab="consistency" tabindex="-1">Consistency</button>
+        <button class="tab-button" role="tab" id="tabbtn-rewritten" aria-selected="false" aria-controls="tab-rewritten" data-tab="rewritten" tabindex="-1">Rewritten</button>
       </div>
 
       <!-- Score tab -->
-      <div class="tab-content active" id="tab-score">
+      <div class="tab-content active" id="tab-score" role="tabpanel" aria-labelledby="tabbtn-score" tabindex="0">
         <div class="score-block">
           <span class="score-label">Resume Score</span>
           <span class="score-value" id="resumeScoreValue">-- / 100</span>
@@ -79,35 +83,35 @@
       </div>
 
       <!-- Suggestions tab -->
-      <div class="tab-content" id="tab-suggestions">
+      <div class="tab-content" id="tab-suggestions" role="tabpanel" aria-labelledby="tabbtn-suggestions" tabindex="0">
         <ul class="suggestions-list" id="suggestionsList"></ul>
       </div>
 
       <!-- Consistency tab -->
-      <div class="tab-content" id="tab-consistency">
+      <div class="tab-content" id="tab-consistency" role="tabpanel" aria-labelledby="tabbtn-consistency" tabindex="0">
         <div class="consistency-block">
-          <h3 class="consistency-heading match">✅ What matches well</h3>
+          <h3 class="consistency-heading match"><span aria-hidden="true">✅</span> What matches well</h3>
           <ul class="consistency-list" id="matchList"></ul>
         </div>
         <div class="consistency-block">
-          <h3 class="consistency-heading mismatch">⚠️ What doesn't match</h3>
+          <h3 class="consistency-heading mismatch"><span aria-hidden="true">⚠️</span> What doesn't match</h3>
           <ul class="consistency-list" id="mismatchList"></ul>
         </div>
       </div>
 
       <!-- Rewritten tab -->
-      <div class="tab-content" id="tab-rewritten">
+      <div class="tab-content" id="tab-rewritten" role="tabpanel" aria-labelledby="tabbtn-rewritten" tabindex="0">
         <div class="rewrite-block">
           <span class="rewrite-label">Current Headline</span>
           <p class="rewrite-original" id="currentHeadlineText"></p>
-          <span class="rewrite-label">✨ AI-Suggested Headline</span>
+          <span class="rewrite-label"><span aria-hidden="true">✨</span> AI-Suggested Headline</span>
           <p class="rewrite-suggested" id="suggestedHeadlineText"></p>
-          <button class="copy-button">Copy</button>
+          <button class="copy-button" type="button">Copy</button>
         </div>
         <div class="rewrite-block">
-          <span class="rewrite-label">✨ AI-Suggested About Section</span>
+          <span class="rewrite-label"><span aria-hidden="true">✨</span> AI-Suggested About Section</span>
           <p class="rewrite-suggested" id="suggestedAboutText"></p>
-          <button class="copy-button">Copy</button>
+          <button class="copy-button" type="button">Copy</button>
         </div>
       </div>
     </section>
@@ -122,7 +126,6 @@
   <!-- DOCX parsing library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 
-  <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
