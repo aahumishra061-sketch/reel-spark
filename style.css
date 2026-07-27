@@ -492,7 +492,7 @@ section {
   margin: 0;
 }
 
-/* Tablet and up: roomier layout, side-by-side result cards */
+/* Tablet and up: roomier layout, side-by-side result cards (only when tab is active) */
 @media (min-width: 640px) {
   .container {
     max-width: 720px;
@@ -502,7 +502,8 @@ section {
   .app-header h1 {
     font-size: 2.1rem;
   }
-#tab-score.active {
+
+  #tab-score.active {
     display: flex;
     gap: var(--space-2);
   }
@@ -531,7 +532,8 @@ section {
     flex: 1;
     margin-bottom: 0;
   }
-  
+}
+
 /* Small phones: tighten up spacing a little */
 @media (max-width: 380px) {
   .app-header h1 {
