@@ -150,7 +150,25 @@ README completion, and v1.0 launch checklist.
 
 ## Day 8
 
+## Day 8 — Testing, Debugging & Production Optimization (v1.0 Launch)
 
+Performed a senior-level QA, security, and performance review of the
+complete app. Added safety truncation on LinkedIn fields sent to the
+AI, removed the unused config.js file left over from an earlier
+architecture, and wrote a complete professional README with the live
+link, full feature list, tech stack, architecture explanation, and
+honest known-limitations section.
+
+Manually regression-tested the live site with three resume scenarios:
+a strong resume, a sparse fresher resume, and a resume with an
+obvious LinkedIn mismatch. All three completed successfully with no
+crashes, blank screens, or console errors.
+
+No paid tools or new services used — pure hardening and documentation.
+
+Status: v1.0 shipped. Reel Spark is complete, tested, and live at
+aahumishra061-sketch.github.io/reel-spark/. Definition of Done
+checklist fully confirmed.
 ## Day 9
 
 ## Day 10
