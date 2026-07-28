@@ -1,4 +1,4 @@
-// Reel Spark — Day 9 (part 2): score bars, char counter, reset flow, focus management
+// Reel Spark — Day 10: safety truncation for LinkedIn fields
 
 if (window.pdfjsLib) {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -164,6 +164,9 @@ function updateAnalyzeButtonState() {
 async function callGeminiAPI(resumeText, headline, about) {
   const endpoint = "https://still-wind-844b.aahumishra061.workers.dev/";
 
+  const safeHeadline = headline.slice(0, 300);
+  const safeAbout = about.slice(0, 3000);
+
   const prompt = `You are a career coach reviewing a fresher's resume and LinkedIn profile.
 
 Return ONLY valid JSON matching exactly this shape, with no markdown formatting and no extra text outside the JSON:
@@ -188,12 +191,12 @@ ${resumeText.slice(0, 6000)}
 
 CURRENT LINKEDIN HEADLINE:
 """
-${headline}
+${safeHeadline}
 """
 
 CURRENT LINKEDIN ABOUT SECTION:
 """
-${about}
+${safeAbout}
 """`;
 
   const response = await fetch(endpoint, {
