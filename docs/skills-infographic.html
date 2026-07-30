@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>60 Days, One Spark — The Reel Spark Journey</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --bg-deep:#12141b;
+    --bg-panel:#1b1e28;
+    --bg-panel-2:#20242f;
+    --line:#2c3040;
+    --ink:#f1f3f8;
+    --muted:#9aa1b4;
+    --muted-2:#6b7186;
+    --gold:#f4b942;
+    --ember:#ff7a4d;
+    --spark-green:#22c58f;
+    --spark-green-dim:#1a7d5a;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:var(--bg-deep);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  a{color:var(--spark-green);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  .wrap{max-width:920px;margin:0 auto;padding:0 28px;}
+
+  /* Background texture: faint rising spark trail behind everything */
+  .bg-trail{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    background:
+      radial-gradient(600px 400px at 12% 8%, rgba(244,185,66,0.08), transparent),
+      radial-gradient(700px 500px at 88% 92%, rgba(34,197,143,0.10), transparent);
+    pointer-events:none;
+  }
+
+  main{position:relative;z-index:1;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:92vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:80px 0 60px;
+    position:relative;
+  }
+
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:22px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .eyebrow::before{
+    content:'';
+    width:7px;height:7px;border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 12px 3px rgba(244,185,66,0.7);
+  }
+
+  .hero h1{
+    font-family:'Fraunces',serif;
+    font-weight:340;
+    font-size:clamp(2.6rem, 7vw, 5.4rem);
+    line-height:1.02;
+    margin:0 0 28px;
+    letter-spacing:-0.01em;
+  }
+
+  .hero h1 em{
+    font-style:italic;
+    font-weight:600;
+    background:linear-gradient(100deg, var(--gold) 10%, var(--ember) 45%, var(--spark-green) 85%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+
+  .hero p.lede{
+    font-size:1.15rem;
+    line-height:1.6;
+    color:var(--muted);
+    max-width:560px;
+    margin:0 0 40px;
+  }
+
+  .hero-stats{
+    display:flex;
+    gap:40px;
+    flex-wrap:wrap;
+  }
+
+  .hstat{
+    border-left:2px solid var(--line);
+    padding-left:16px;
+  }
+
+  .hstat .num{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:2.1rem;
+    color:var(--ink);
+    display:block;
+    line-height:1;
+  }
+
+  .hstat .label{
+    font-size:0.82rem;
+    color:var(--muted-2);
+    margin-top:4px;
+  }
+
+  /* ---------- SECTION HEADERS ---------- */
+  .section-head{
+    padding:100px 0 50px;
+  }
+
+  .section-head .eyebrow{margin-bottom:16px;}
+
+  .section-head h2{
+    font-family:'Fraunces',serif;
+    font-weight:400;
+    font-size:clamp(1.8rem, 4vw, 2.6rem);
+    margin:0 0 16px;
+    max-width:600px;
+  }
+
+  .section-head p{
+    color:var(--muted);
+    max-width:540px;
+    line-height:1.65;
+    font-size:1.02rem;
+  }
+
+  /* ---------- SPARK TRAIL TIMELINE ---------- */
+  .trail{
+    position:relative;
+    padding:0 0 40px;
+  }
+
+  .trail-line{
+    position:absolute;
+    left:19px;
+    top:8px;
+    bottom:8px;
+    width:2px;
+    background:linear-gradient(180deg, var(--ember) 0%, var(--gold) 45%, var(--spark-green) 100%);
+    opacity:0.55;
+  }
+
+  .phase{
+    position:relative;
+    padding:0 0 44px 60px;
+  }
+
+  .phase:last-child{padding-bottom:0;}
+
+  .phase-dot{
+    position:absolute;
+    left:11px;
+    top:4px;
+    width:18px;height:18px;
+    border-radius:50%;
+    background:var(--bg-deep);
+    border:2px solid var(--gold);
+    box-shadow:0 0 0 4px var(--bg-deep);
+  }
+
+  .phase.cap .phase-dot{
+    border-color:var(--spark-green);
+    background:var(--spark-green);
+    box-shadow:0 0 0 4px var(--bg-deep), 0 0 18px 4px rgba(34,197,143,0.6);
+  }
+
+  .phase-range{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.75rem;
+    color:var(--gold);
+    letter-spacing:0.06em;
+    margin-bottom:6px;
+    display:block;
+  }
+
+  .phase.cap .phase-range{color:var(--spark-green);}
+
+  .phase h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:1.28rem;
+    margin:0 0 8px;
+  }
+
+  .phase p{
+    color:var(--muted);
+    line-height:1.6;
+    font-size:0.98rem;
+    max-width:560px;
+    margin:0;
+  }
+
+  /* ---------- CAPSTONE PANEL ---------- */
+  .capstone{
+    margin:20px 0 0 60px;
+    background:linear-gradient(155deg, var(--bg-panel) 0%, var(--bg-panel-2) 100%);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:36px 34px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .capstone::before{
+    content:'';
+    position:absolute;
+    top:-40%;right:-20%;
+    width:300px;height:300px;
+    background:radial-gradient(circle, rgba(34,197,143,0.18), transparent 70%);
+    pointer-events:none;
+  }
+
+  .capstone-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--spark-green);
+    background:rgba(34,197,143,0.12);
+    border:1px solid rgba(34,197,143,0.35);
+    padding:6px 12px;
+    border-radius:999px;
+    margin-bottom:20px;
+  }
+
+  .capstone h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:1.7rem;
+    margin:0 0 14px;
+  }
+
+  .capstone p{
+    color:var(--muted);
+    line-height:1.65;
+    font-size:1rem;
+    max-width:600px;
+    margin:0 0 24px;
+  }
+
+  .proof-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:16px;
+    margin-top:8px;
+  }
+
+  .proof{
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px 18px;
+  }
+
+  .proof .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.68rem;
+    color:var(--ember);
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    display:block;
+    margin-bottom:8px;
+  }
+
+  .proof p{
+    font-size:0.88rem;
+    color:var(--ink);
+    line-height:1.5;
+    margin:0;
+  }
+
+  /* ---------- STACK STRIP ---------- */
+  .stack{
+    padding:70px 0 90px;
+    border-top:1px solid var(--line);
+    margin-top:60px;
+  }
+
+  .stack .section-head{padding-top:0;padding-bottom:34px;}
+
+  .stack-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  .chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.82rem;
+    color:var(--muted);
+    border:1px solid var(--line);
+    background:var(--bg-panel);
+    padding:9px 16px;
+    border-radius:8px;
+  }
+
+  /* ---------- FOOTER / LAUNCH ---------- */
+  .launch{
+    padding:80px 0 100px;
+    text-align:center;
+  }
+
+  .launch .flare{
+    width:64px;height:64px;
+    margin:0 auto 28px;
+    border-radius:50%;
+    background:radial-gradient(circle, var(--spark-green) 0%, rgba(34,197,143,0.25) 60%, transparent 100%);
+    box-shadow:0 0 60px 12px rgba(34,197,143,0.35);
+  }
+
+  .launch h2{
+    font-family:'Fraunces',serif;
+    font-weight:400;
+    font-size:clamp(1.9rem, 5vw, 3rem);
+    margin:0 0 14px;
+  }
+
+  .launch h2 em{
+    font-style:italic;
+    color:var(--spark-green);
+  }
+
+  .launch p{
+    color:var(--muted);
+    max-width:480px;
+    margin:0 auto 32px;
+    line-height:1.6;
+  }
+
+  .launch-link{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.92rem;
+    color:var(--ink);
+    background:var(--bg-panel);
+    border:1px solid var(--spark-green-dim);
+    padding:14px 26px;
+    border-radius:999px;
+  }
+
+  .launch-link:hover{
+    text-decoration:none;
+    border-color:var(--spark-green);
+    background:var(--bg-panel-2);
+  }
+
+  footer.credit{
+    text-align:center;
+    padding:30px 0 60px;
+    font-size:0.8rem;
+    color:var(--muted-2);
+  }
+
+  @media (max-width:640px){
+    .capstone{margin-left:44px;padding:26px 22px;}
+    .phase{padding-left:44px;}
+    .phase-dot{left:7px;}
+    .trail-line{left:15px;}
+    .hero-stats{gap:26px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-trail"></div>
+
+<main>
+
+  <section class="hero wrap">
+    <div class="eyebrow">AB Talks — 60-Day Claude AI Challenge</div>
+    <h1>Sixty days of<br><em>learning to build</em>, one shipped product.</h1>
+    <p class="lede">
+      From first prompts to a secure, deployed AI application — this is
+      how sixty days of structured practice became <strong style="color:var(--ink)">Reel Spark v1.0.0</strong>,
+      an AI resume &amp; LinkedIn optimizer, built entirely on a phone.
+    </p>
+    <div class="hero-stats">
+      <div class="hstat">
+        <span class="num">60</span>
+        <span class="label">Days of the challenge</span>
+      </div>
+      <div class="hstat">
+        <span class="num">10</span>
+        <span class="label">Day capstone sprint</span>
+      </div>
+      <div class="hstat">
+        <span class="num">v1.0.0</span>
+        <span class="label">Shipped, versioned release</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">The Arc</div>
+      <h2>Every phase built the muscle the capstone needed later.</h2>
+      <p>The first fifty days weren't separate from the last ten — they were the reason the last ten worked.</p>
+    </div>
+
+    <div class="trail">
+      <div class="trail-line"></div>
+
+      <div class="phase">
+        <div class="phase-dot"></div>
+        <span class="phase-range">Weeks 1–2</span>
+        <h3>AI Foundations &amp; Effective Prompting</h3>
+        <p>Learned how large language models actually respond to instruction — precision, context, and structure over guesswork. This became the backbone of every AI prompt written for Reel Spark's scoring and rewriting engine.</p>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot"></div>
+        <span class="phase-range">Weeks 3–4</span>
+        <h3>Reasoning &amp; Research Workflows</h3>
+        <p>Practiced breaking ambiguous problems into steps and verifying claims before acting on them — the same discipline used to diagnose a hosting failure and a security incident mid-capstone without panic.</p>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot"></div>
+        <span class="phase-range">Weeks 5–6</span>
+        <h3>Automation &amp; Product Thinking</h3>
+        <p>Moved from "can I build this" to "should I build this, and for whom" — the thinking that produced Reel Spark's explicit v1.0 scope before a single line of code existed.</p>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot"></div>
+        <span class="phase-range">Weeks 7–8</span>
+        <h3>Increasingly Sophisticated AI Projects</h3>
+        <p>Built progressively harder AI-integrated tools, each one adding a layer — real APIs, structured outputs, error handling — that later became load-bearing parts of the capstone's architecture.</p>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot"></div>
+        <span class="phase-range">Weeks 9–10</span>
+        <h3>Knowledge Systems &amp; Multimodal AI</h3>
+        <p>Worked with structured data and mixed input types — groundwork for parsing real PDF and DOCX resumes into clean text the AI could reliably reason over.</p>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot"></div>
+        <span class="phase-range">Weeks 11–12</span>
+        <h3>Autonomous Agents &amp; Multi-Agent Collaboration</h3>
+        <p>Explored systems that plan and act with less hand-holding — the same mindset behind designing a Cloudflare Worker that independently and securely brokers every AI request Reel Spark makes.</p>
+      </div>
+
+      <div class="phase cap">
+        <div class="phase-dot"></div>
+        <span class="phase-range">Days 51–60 · The Capstone</span>
+        <h3>Reel Spark — Everything, Together</h3>
+        <p>Ten days that pulled every prior skill into one real, production, publicly-shippable product.</p>
+
+        <div class="capstone">
+          <span class="capstone-tag">● Shipped &amp; Live</span>
+          <h3>Ten days. One real engineering project.</h3>
+          <p>Not a tutorial clone — an AI product with real constraints, a real security incident, and real decisions made under them.</p>
+          <div class="proof-grid">
+            <div class="proof">
+              <span class="tag">Pivot</span>
+              <p>Switched the AI provider from Claude to Gemini mid-build once the free-tier budget constraint became clear — and rebuilt the integration cleanly.</p>
+            </div>
+            <div class="proof">
+              <span class="tag">Security</span>
+              <p>An exposed API key was auto-revoked by Google within minutes. Response: architected a Cloudflare Worker proxy so the key never touches the frontend again.</p>
+            </div>
+            <div class="proof">
+              <span class="tag">Resilience</span>
+              <p>Netlify's infrastructure failed mid-sprint through no fault of the build. Migrated to GitHub Pages same-day rather than lose momentum.</p>
+            </div>
+            <div class="proof">
+              <span class="tag">Craft</span>
+              <p>Shipped with accessible, keyboard-navigable tabs, responsive layouts, and a caught-and-fixed CSS bug — polish, not just a working demo.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="stack wrap">
+    <div class="section-head">
+      <div class="eyebrow">What It's Built With</div>
+      <h2>No frameworks. No local machine. Just discipline.</h2>
+      <p>Every file of Reel Spark was written and committed from a mobile browser.</p>
+    </div>
+    <div class="stack-row">
+      <span class="chip">HTML / CSS / Vanilla JS</span>
+      <span class="chip">Google Gemini API</span>
+      <span class="chip">Cloudflare Workers</span>
+      <span class="chip">pdf.js</span>
+      <span class="chip">mammoth.js</span>
+      <span class="chip">GitHub Pages</span>
+      <span class="chip">Built on Mobile</span>
+    </div>
+  </section>
+
+  <section class="launch wrap">
+    <div class="flare"></div>
+    <h2>Sixty days of practice.<br>One product that <em>ships</em>.</h2>
+    <p>Reel Spark v1.0.0 is live, tested, documented, and licensed — the final proof of everything learned since Day 1.</p>
+    <a class="launch-link" href="https://aahumishra061-sketch.github.io/reel-spark/" target="_blank" rel="noopener">
+      → aahumishra061-sketch.github.io/reel-spark
+    </a>
+  </section>
+
+</main>
+
+<footer class="credit">
+  Built by Astha Mishra · AB Talks 60-Day Claude AI Challenge · Capstone: Reel Spark v1.0.0
+</footer>
+
+</body>
+</html>
